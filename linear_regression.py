@@ -1,3 +1,5 @@
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -22,12 +24,11 @@ lin_reg.intercept_, lin_reg.coef_
 
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
-training_error=[]
-val_error=[]
+
 def plot_learning_curves(model, X, y):
     X_train, X_val, y_train, y_val=train_test_split(X, y, test_size=.2)
-    
-    for k in range(1, np.size(X_train)):
+    training_error, val_error = [], []
+    for k in range(1, len(X_train)):
         print(k)
         model.fit(X_train[:k], y_train[:k])
         y_pred_train=model.predict(X_train[:k])
@@ -36,7 +37,25 @@ def plot_learning_curves(model, X, y):
         val_error.append(mean_squared_error(y_pred_val, y_val))
     plt.plot(np.sqrt(training_error), "r-+", linewidth=2, label="train")
     plt.plot(np.sqrt(val_error), "b-+", linewidth=2, label="val")
+
+
+def plot_learning_curves1(model, X, y):
+    X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2)
+    train_errors, val_errors = [], []
+    for m in range(1, len(X_train)):
+        print(m)
+        model.fit(X_train[:m], y_train[:m])
+        y_train_predict = model.predict(X_train[:m])
+        y_val_predict = model.predict(X_val)
+        train_errors.append(mean_squared_error(y_train_predict, y_train[:m]))
+        val_errors.append(mean_squared_error(y_val_predict, y_val))
+    plt.plot(np.sqrt(train_errors), "r-+", linewidth=2, label="train")
+    plt.plot(np.sqrt(val_errors), "b-", linewidth=3, label="val")
+    print(val_errors)
     
+lin_reg = LinearRegression()
+plot_learning_curves1(lin_reg, X, y)
+
 lin_reg = LinearRegression()
 plot_learning_curves(lin_reg, X, y)
 
@@ -48,15 +67,21 @@ poly_features=Pipeline([
         ("linear", LinearRegression()), 
         ])
         
-plot_learning_curves(poly_features, X, y)    
+plot_learning_curves1(poly_features, X, y)    
 
 
 from sklearn.pipeline import Pipeline
 
-polynomial_regression = Pipeline([
-        ("poly_features", PolynomialFeatures(degree=10, include_bias=False)),
+polynomial_regression4 = Pipeline([
+        ("poly_features", PolynomialFeatures(degree=5, include_bias=False)),
         ("lin_reg", LinearRegression()),
     ])
 
-plot_learning_curves(polynomial_regression, X, y)
-    
+plot_learning_curves1(polynomial_regression4, X, y)
+
+
+from sklearn.linear_model import Ridge
+ridge_reg=Ridge(alpha=1, solver="cholesky")
+ridge_reg.fit(X,y)
+ridge_reg.predict([[1.55]])
+
